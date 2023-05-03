@@ -1,5 +1,8 @@
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
+from conan.tools.files import get
+from conan.tools.scm import Git
+import shutil
 
 
 class aftrburnerRecipe(ConanFile):
@@ -19,7 +22,35 @@ class aftrburnerRecipe(ConanFile):
     default_options = {"shared": False, "fPIC": True}
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*"
+    # exports_sources = "CMakeLists.txt", "src/*", "include/*"
+    def source(self):
+        # Faster but runs out daily traffic limit sooner on free plan
+        # "https://dl.dropboxusercontent.com/s/ga8rvoccaqehu43/repo_distro.tar.xz",
+
+        get(
+            self,
+            "https://catmailohio-my.sharepoint.com/:u:/g/personal/hp433822_ohio_edu/EbNegRqVgZZJgUsetTwLco0BZfvg8wONpiKNhd-r7xkj_g?download=1",
+            strip_root=True,
+            filename="repo_distro.tar.xz",
+        )
+
+        # For testing
+        # self.run("xcopy Y:\\repo_distro2\\* . /E")
+
+        self.run("dir")
+
+        git = Git(self, folder="aburn/engine")
+        git.checkout("-- *")
+
+        git = Git(self, folder="libs")
+        git.checkout("-f --")
+
+        git = Git(self, folder="aburn/usr")
+        git.checkout("-- *")
+
+        git = Git(self, folder="aburn/modules")
+        git.checkout("-- *")
+        shutil.move("aburn/modules", "aburn/usr/modules")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -49,8 +80,3 @@ class aftrburnerRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["aftrburner"]
-
-    
-
-    
-

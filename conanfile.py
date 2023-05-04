@@ -1,4 +1,4 @@
-import shutil
+import os, shutil
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import get
@@ -29,6 +29,9 @@ class aftrburnerRecipe(ConanFile):
     default_options = {"shared": False, "fPIC": True}
     # Prevents unnecessary copy step
     no_copy_source = True
+
+    # def requirements(self):
+    # self.requires("boost/1.80.0")
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     # exports_sources = "CMakeLists.txt", "src/*", "include/*"
@@ -72,9 +75,10 @@ class aftrburnerRecipe(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        cmake_layout(
-            self, generator="Visual Studio 17 2022", build_folder="C:/repos_new/"
-        )
+        home_dir = "~/repos/"
+        if self.settings.os == "Windows":
+            home_dir = "C:/repos/"
+        cmake_layout(self, generator="Visual Studio 17 2022", build_folder=home_dir)
 
     def generate(self):
         deps = CMakeDeps(self)
@@ -83,17 +87,33 @@ class aftrburnerRecipe(ConanFile):
         tc.generate()
 
     def build(self):
+        home_dir = "~/repos/"
+        if self.settings.os == "Windows":
+            home_dir = "C:/repos/"
+
         try:
-            if self.settings.os == "Windows":
-                print(">> Copying to C:/repos")
-                shutil.copytree(
-                    self.export_sources_folder, "C:/repos_new/", dirs_exist_ok=True
-                )
-            else:
-                print(">> Copying to ~/repos")
-                shutil.copytree(self.export_sources_folder, "~/repos")
+            report(f"Copying to {home_dir}")
+            shutil.copytree(self.export_sources_folder, home_dir, dirs_exist_ok=True)
         except:
-            print("Error copying build files")
+            report(f"Error copying build files to {home_dir}")
+
+        # Temporary solution until requirements() method is not fixed
+        if not os.path.isdir(f"{home_dir}libs/boost_1_80_0"):
+            report("Waiting for user to extract libs and set PATH")
+            print(
+                f"1. Run the file {home_dir}libs/AFTR__Extract_3rdParty.sh, wait for all the windows to finish extracting archives then close all the windows."
+            )
+            print(
+                f"2. Run the file {home_dir}libs/AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat as Administrator, wait for it to finish then close the window."
+            )
+            print(f"Press enter key here once done with the above steps...")
+            input()
+            # self.run('.\\libs\\AFTR__Extract_3rdParty.sh')
+            # self.run('.\\libs\\AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat')
+
+            report("Libs extracted")
+        else:
+            report("Libs already extracted")
 
         # cmake = CMake(self)
         # cmake.configure(

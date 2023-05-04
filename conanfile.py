@@ -6,6 +6,12 @@ from conan.tools.scm import Git
 from conan.tools.microsoft import MSBuild
 
 
+def report(status):
+    print("########################################")
+    print(f">>>>>    {status}    <<<<<")
+    print("########################################")
+
+
 class aftrburnerRecipe(ConanFile):
     name = "aftrburner"
     version = "1.0"
@@ -54,6 +60,8 @@ class aftrburnerRecipe(ConanFile):
         git = Git(self, folder="aburn/modules")
         git.checkout("-- *")
         shutil.move("aburn/modules", "aburn/usr/modules")
+
+        report("Source fetched")
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -104,11 +112,12 @@ class aftrburnerRecipe(ConanFile):
         )
 
         # msbuild = MSBuild(self)
-
         # msbuild.build_type = "Debug"
         # msbuild.platform = "x64"
         # msbuild.build("./aburn/engine/cwin64/AftrBurnerEngine.sln")
         # msbuild.build("./aburn/engine/cwin64/INSTALL.vcxproj")
+
+        report("Build Finished")
 
     def package(self):
         pass

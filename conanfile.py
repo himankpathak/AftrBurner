@@ -1,8 +1,9 @@
+import shutil
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
 from conan.tools.files import get
 from conan.tools.scm import Git
-import shutil
+from conan.tools.microsoft import MSBuild
 
 
 class aftrburnerRecipe(ConanFile):
@@ -20,6 +21,8 @@ class aftrburnerRecipe(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
     default_options = {"shared": False, "fPIC": True}
+    # Prevents unnecessary copy step
+    no_copy_source = True
 
     # Sources are located in the same place as this recipe, copy them to the recipe
     # exports_sources = "CMakeLists.txt", "src/*", "include/*"
@@ -61,7 +64,9 @@ class aftrburnerRecipe(ConanFile):
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        cmake_layout(self)
+        cmake_layout(
+            self, generator="Visual Studio 17 2022", build_folder="C:/repos_new/"
+        )
 
     def generate(self):
         deps = CMakeDeps(self)
@@ -70,13 +75,45 @@ class aftrburnerRecipe(ConanFile):
         tc.generate()
 
     def build(self):
-        cmake = CMake(self)
-        cmake.configure()
-        cmake.build()
+        try:
+            if self.settings.os == "Windows":
+                print(">> Copying to C:/repos")
+                shutil.copytree(
+                    self.export_sources_folder, "C:/repos_new/", dirs_exist_ok=True
+                )
+            else:
+                print(">> Copying to ~/repos")
+                shutil.copytree(self.export_sources_folder, "~/repos")
+        except:
+            print("Error copying build files")
+
+        # cmake = CMake(self)
+        # cmake.configure(
+        #     cli_args=[
+        #         "-A x64",
+        #         "-S ./aburn/engine/src/aftr",
+        #         "-B ./aburn/engine/cwin64",
+        #     ]
+        # )
+        # cmake.build(target="INSTALL")
+        self.run(
+            'cmake -G "Visual Studio 17 2022" -A x64 -S ./aburn/engine/src/aftr -B ./aburn/engine/cwin64'
+        )
+        self.run(
+            f"cmake --build ./aburn/engine/cwin64 --target INSTALL --config {self.settings.build_type}"
+        )
+
+        # msbuild = MSBuild(self)
+
+        # msbuild.build_type = "Debug"
+        # msbuild.platform = "x64"
+        # msbuild.build("./aburn/engine/cwin64/AftrBurnerEngine.sln")
+        # msbuild.build("./aburn/engine/cwin64/INSTALL.vcxproj")
 
     def package(self):
-        cmake = CMake(self)
-        cmake.install()
+        pass
+        # cmake = CMake(self)
+        # cmake.install()
 
     def package_info(self):
         self.cpp_info.libs = ["aftrburner"]

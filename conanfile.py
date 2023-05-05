@@ -36,12 +36,14 @@ class aftrburnerRecipe(ConanFile):
     # Sources are located in the same place as this recipe, copy them to the recipe
     # exports_sources = "CMakeLists.txt", "src/*", "include/*"
     def source(self):
-        # Faster but runs out daily traffic limit sooner on free plan
+        # Dropbox: Faster but runs out daily traffic limit sooner on free plan
         # "https://dl.dropboxusercontent.com/s/ga8rvoccaqehu43/repo_distro.tar.xz",
+        # OneDrive
+        # "https://catmailohio-my.sharepoint.com/:u:/g/personal/hp433822_ohio_edu/EbNegRqVgZZJgUsetTwLco0BZfvg8wONpiKNhd-r7xkj_g?download=1",
 
         get(
             self,
-            "https://catmailohio-my.sharepoint.com/:u:/g/personal/hp433822_ohio_edu/EbNegRqVgZZJgUsetTwLco0BZfvg8wONpiKNhd-r7xkj_g?download=1",
+            "https://dl.dropboxusercontent.com/s/ga8rvoccaqehu43/repo_distro.tar.xz",
             strip_root=True,
             filename="repo_distro.tar.xz",
         )

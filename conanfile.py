@@ -100,13 +100,15 @@ class aftrburnerRecipe(ConanFile):
         # Temporary solution until requirements() method is not fixed
         if not os.path.isdir(f"{home_dir}libs/boost_1_80_0"):
             report("Waiting for user to extract libs and set PATH")
+            print(f"1. Run the file {home_dir}libs/AFTR__Extract_3rdParty.sh")
             print(
-                f"1. Run the file {home_dir}libs/AFTR__Extract_3rdParty.sh, wait for all the windows to finish extracting archives then close all the windows."
+                "2. Wait for all the windows to finish extracting archives then close all the windows."
             )
             print(
-                f"2. Run the file {home_dir}libs/AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat as Administrator, wait for it to finish then close the window."
+                f"3. Run the file {home_dir}libs/AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat as Administrator, wait for it to finish then close the window."
             )
-            print(f"Press enter key here once done with the above steps...")
+            print("4. Wait for it to finish then close the window.")
+            print("Press enter key here once done with the above steps...")
             input()
             # self.run('.\\libs\\AFTR__Extract_3rdParty.sh')
             # self.run('.\\libs\\AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat')
@@ -123,10 +125,15 @@ class aftrburnerRecipe(ConanFile):
         #         "-B ./aburn/engine/cwin64",
         #     ]
         # )
-        # cmake.build(target="INSTALL")
         self.run(
             'cmake -G "Visual Studio 17 2022" -A x64 -S ./aburn/engine/src/aftr -B ./aburn/engine/cwin64'
         )
+        report("Build Finished")
+
+    def package(self):
+        # cmake = CMake(self)
+        # cmake.install()
+        # cmake.build(target="INSTALL")
         self.run(
             f"cmake --build ./aburn/engine/cwin64 --target INSTALL --config {self.settings.build_type}"
         )
@@ -137,12 +144,7 @@ class aftrburnerRecipe(ConanFile):
         # msbuild.build("./aburn/engine/cwin64/AftrBurnerEngine.sln")
         # msbuild.build("./aburn/engine/cwin64/INSTALL.vcxproj")
 
-        report("Build Finished")
-
-    def package(self):
-        pass
-        # cmake = CMake(self)
-        # cmake.install()
+        report("Install Finished")
 
     def package_info(self):
         self.cpp_info.libs = ["aftrburner"]

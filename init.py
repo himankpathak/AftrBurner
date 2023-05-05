@@ -7,7 +7,7 @@ def RunConan(build_type):
             "conan",
             "create",
             ".",
-            "--build=missing",
+            "--build=*",
             f"--settings=build_type={build_type}",
             "-tf=",  # Skip tests for now
         )

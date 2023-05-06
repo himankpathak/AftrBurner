@@ -96,13 +96,13 @@ class aftrburnerRecipe(ConanFile):
         try:
             report(f"Copying to {home_dir}")
             shutil.copytree(self.export_sources_folder, home_dir, dirs_exist_ok=True)
-        except:
-            report(f"Error copying build files to {home_dir}")
+        except Exception as e:
+            print(f"Error copying build files to {home_dir} \nError:", e)
 
         # Temporary solution until requirements() method is not fixed
         if not os.path.isdir(f"{home_dir}libs/boost_1_80_0"):
             report("Waiting for user to extract libs and set PATH")
-            print(f"1. Run the file {home_dir}libs/AFTR__Extract_3rdParty.sh")
+            print(f"\n1. Run the file {home_dir}libs/AFTR__Extract_3rdParty.sh")
             print(
                 "2. Wait for all the windows to finish extracting archives then close all the windows."
             )
@@ -110,7 +110,7 @@ class aftrburnerRecipe(ConanFile):
                 f"3. Run the file {home_dir}libs/AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat as Administrator, wait for it to finish then close the window."
             )
             print("4. Wait for it to finish then close the window.")
-            print("Press enter key here once done with the above steps...")
+            print("\nPress enter key here once done with the above steps...")
             input()
             # self.run('.\\libs\\AFTR__Extract_3rdParty.sh')
             # self.run('.\\libs\\AFTR__Set_Path_Bins_RUN_AS_ADMIN.bat')
